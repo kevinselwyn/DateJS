@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*globals console, DateJS, document, window*/
+/*globals document, window*/
 
 (function (document, window, undefined) {
 	"use strict";
@@ -27,7 +27,7 @@
 	var DateJS = function () {
 		return true;
 	};
-		
+
 	DateJS.prototype = {
 /* -------------------------------- *\
 	$VARS
@@ -40,7 +40,7 @@
 			}
 		},
 		pad: function (str, len) {
-			str = String(str);
+			str = str.toString();
 			while (str.length < len) {
 				str = ["0", str].join("");
 			}
@@ -55,7 +55,7 @@
 			/* 01 to 31 */
 			var j = this.j();
 
-			return (j < 10) ? ["0", j].join("") : j;
+			return (j < 10) ? this.pad(j, 2) : j;
 		},
 		D: function () {
 			/* A textual representation of a day, three letters */
@@ -82,13 +82,13 @@
 		S: function () {
 			/* English ordinal suffix for the day of the month, 2 characters */
 			/* st, nd, rd or th. Works well with j */
-			var j = this.j(), suffix = ["th", "st", "nd", "rd"], S = 0;
+			var j = this.j(), S = 0;
 
 			if (j < 11 || j > 12) {
 				S = ((j % 10) > 3) ? 0 : (j % 10);
 			}
 
-			return suffix[S];
+			return ["th", "st", "nd", "rd"][S];
 		},
 		w: function () {
 			/* Numeric representation of the day of the week */
@@ -123,7 +123,7 @@
 			/* 01 through 12 */
 			var n = this.n();
 
-			return (n < 10) ? ["0", n].join("") : n;
+			return (n < 10) ? this.pad(n, 2) : n;
 		},
 		M: function () {
 			/* A short textual representation of a month, three letters */
@@ -161,7 +161,7 @@
 		y: function () {
 			/* A two digit representation of a year */
 			/* Examples: 99 or 03 */
-			return [this.Y(), ""].join("").substr(2, 2);
+			return this.Y().toString().substr(2, 2);
 		},
 /* -------------------------------- *\
 	$TIME
@@ -169,9 +169,7 @@
 		a: function () {
 			/* Lowercase Ante meridiem and Post meridiem */
 			/* am or pm */
-			var G = this.G();
-
-			return (G > 12) ? "pm" : "am";
+			return (this.G() > 12) ? "pm" : "am";
 		},
 		A: function () {
 			/* Uppercase Ante meridiem and Post meridiem */
@@ -183,10 +181,9 @@
 			/* 000 through 999 */
 			var date = this.vars.date, hrs = (date.getUTCHours() + 1) % 24,
 				min = date.getUTCMinutes() / 60,
-				sec = date.getUTCSeconds() / 3600, swatch = (hrs + min + sec),
-				B = Math.floor(swatch * 1000 / 24);
+				sec = date.getUTCSeconds() / 3600;
 
-			return this.pad(B, 3);
+			return this.pad(Math.floor((hrs + min + sec) * 1000 / 24), 3);
 		},
 		g: function () {
 			/* 12-hour format of an hour without leading zeros */
@@ -205,28 +202,28 @@
 			/* 01 through 12 */
 			var g = this.g();
 
-			return (g < 10) ? ["0", g].join("") : g;
+			return (g < 10) ? this.pad(g, 2) : g;
 		},
 		H: function () {
 			/* 24-hour format of an hour with leading zeros */
 			/* 00 through 23 */
 			var G = this.G();
 
-			return (G < 10) ? ["0", G].join("") : G;
+			return (G < 10) ? this.pad(G, 2) : G;
 		},
 		i: function () {
 			/* Minutes with leading zeros */
 			/* 00 to 59 */
 			var i = this.vars.date.getMinutes();
 
-			return (i < 10) ? ["0", i].join("") : i;
+			return (i < 10) ? this.pad(i, 2) : i;
 		},
 		s: function () {
 			/* Seconds, with leading zeros */
 			/* 00 through 59 */
 			var s = this.vars.date.getSeconds();
 
-			return (s < 10) ? ["0", s].join("") : s;
+			return (s < 10) ? this.pad(s, 2) : s;
 		},
 		u: function () {
 			/* Microseconds (added in PHP 5.2.2). Note that date() will always generate 000000 since it takes an integer parameter, whereas DateTime::format() does support microseconds. */
@@ -284,7 +281,7 @@
 		c: function () {
 			/* ISO 8601 date (added in PHP 5) */
 			/* 2004-02-12T15:19:21+00:00 */
-			return [this.date("Y-m-d\\TH:i:sP")].join("");
+			return this.date("Y-m-d\\TH:i:sP");
 		},
 		r: function () {
 			/* » RFC 2822 formatted date */
@@ -320,7 +317,7 @@
 					i += 1;
 				}
 
-				if (parts[i].match(/[A-Za-z]/) && !raw) {
+				if (!raw && parts[i].match(/[A-Za-z]/)) {
 					parts[i] = ($this[parts[i]] !== undefined) ? $this[parts[i]]() : parts[i];
 				}
 
