@@ -40,9 +40,9 @@
 			}
 		},
 		pad: function (str, len) {
-			str = str.toString();
+			str = "" + str;
 			while (str.length < len) {
-				str = ["0", str].join("");
+				str = "0" + str;
 			}
 
 			return str;
@@ -70,7 +70,7 @@
 		l: function () {
 			/* A full textual representation of the day of the week */
 			/* Sunday through Saturday */
-			return [this.vars.str.week[this.w()], "day"].join("");
+			return this.vars.str.week[this.w() + "day";
 		},
 		N: function () {
 			/* ISO-8601 numeric representation of the day of the week (added in PHP 5.1.0) */
@@ -255,14 +255,14 @@
 			var offset = (this.vars.date.getTimezoneOffset() / 60) * 100,
 				pos = (offset > 0) ? "-" : "+";
 
-			return [pos, this.pad(offset, 4)].join("");
+			return pos + this.pad(offset, 4);
 		},
 		P: function () {
 			/* Difference to Greenwich time (GMT) with colon between hours and minutes (added in PHP 5.1.3) */
 			/* Example: +02:00 */
 			var O = this.O();
 
-			return [O.slice(0, 3), ":", O.slice(3)].join("");
+			return O.slice(0, 3) + ":" + O.slice(3);
 		},
 		T: function () {
 /* !!! PARTIAL FUNCTIONALITY !!! */
@@ -297,7 +297,7 @@
 	$OUTPUT
 \* -------------------------------- */
 		date: function (format, timestamp) {
-			var output = [], $this = this, parts = [], raw = false,
+			var output = "", $this = this, parts = [], raw = false,
 				i = 0, l = 0;
 
 			if (!format) {
@@ -321,10 +321,10 @@
 					parts[i] = ($this[parts[i]] !== undefined) ? $this[parts[i]]() : parts[i];
 				}
 
-				output.push(parts[i]);
+				output += parts[i];
 			}
 
-			return output.join("");
+			return output;
 		}
 	};
 
