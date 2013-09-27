@@ -70,7 +70,7 @@
 		l: function () {
 			/* A full textual representation of the day of the week */
 			/* Sunday through Saturday */
-			return this.vars.str.week[this.w() + "day";
+			return this.vars.str.week[this.w()] + "day";
 		},
 		N: function () {
 			/* ISO-8601 numeric representation of the day of the week (added in PHP 5.1.0) */
