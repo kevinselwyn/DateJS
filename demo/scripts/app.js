@@ -1,4 +1,4 @@
-/*globals define, document, require, window*/
+/*globals document, require, requirejs, window*/
 
 (function (document, window, undefined) {
 	"use strict";
@@ -15,7 +15,15 @@
 			output = document.getElementById("output").getElementsByTagName("p")[0],
 			d = new DateJS(), update = function () {
 				output.innerHTML = d.date(format.value);
-			};
+			}, vars = {};
+
+		window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
+			vars[key] = decodeURIComponent(value).replace(/\+/g, " ");
+		});
+
+		if (vars.f) {
+			format.value = vars.f;
+		}
 
 		update();
 
