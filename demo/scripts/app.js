@@ -1,9 +1,16 @@
-/*globals DateJS, document, window*/
+/*globals define, document, require, window*/
 
 (function (document, window, undefined) {
 	"use strict";
 
-	window.onload = function () {
+	requirejs.config({
+		baseUrl: ".",
+		paths: {
+			"datejs": "../dist/DateJS.min"
+		}
+	});
+
+	require(["datejs"], function (DateJS) {
 		var format = document.getElementById("format").getElementsByTagName("input")[0],
 			output = document.getElementById("output").getElementsByTagName("p")[0],
 			d = new DateJS(), update = function () {
@@ -15,5 +22,5 @@
 		format.onkeyup = function () {
 			update();
 		};
-	};
+	});
 }(document, window));

@@ -1,0 +1,7 @@
+{
+	"name": "DateJS",
+	"version": "1.0",
+	"dependencies": {
+		"requirejs": "latest"
+	}
+}

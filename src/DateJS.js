@@ -19,7 +19,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*globals document, window*/
+/*globals define, document, module, window*/
 
 (function (document, window, undefined) {
 	"use strict";
@@ -286,7 +286,7 @@
 		r: function () {
 			/* » RFC 2822 formatted date */
 			/* Example: Thu, 21 Dec 2000 16:01:07 +0200 */
-			return this.date("D, j M Y H:i:s O");
+			return this.date("D, d M Y H:i:s O");
 		},
 		U: function () {
 			/* Seconds since the Unix Epoch (January 1 1970 00:00:00 GMT) */
@@ -328,5 +328,15 @@
 		}
 	};
 
-	window.DateJS = DateJS;
+	if (typeof module === "object" && module && typeof module.exports === "object") {
+		module.exports = DateJS;
+	} else {
+		window.DateJS = DateJS;
+
+		if (typeof define === "function" && define.amd) {
+			define("datejs", [], function () {
+				return DateJS;
+			});
+		}
+	}
 }(document, window));
