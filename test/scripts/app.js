@@ -1,63 +1,58 @@
-/*globals document, window*/
+class DateJSCheck {
+    constructor() {
+        this._a = [];
+        this._b = [];
+        this._check = [];
 
-(function (document, window, undefined) {
-	"use strict";
+        this.setup();
+        this.check();
+    }
 
-	var check = {
-		vars: {
-			a: [],
-			b: [],
-			check: []
-		},
-		setup: function () {
-			var td = document.getElementsByTagName("td"), i = 0, l = 0,
-				a = [], b = [], check = [];
+    setup() {
+        const tds = [].slice.call(document.querySelectorAll('td'));
 
-			for (i = 0, l = td.length; i < l; i += 1) {
-				switch (td[i].className) {
-				case "a":
-					a.push(td[i]);
-					break;
-				case "b":
-					b.push(td[i]);
-					break;
-				case "check":
-					check.push(td[i]);
-					break;
-				default:
-					break;
-				}
-			}
+        tds
+            .forEach((td) => {
+                switch (td.className) {
+                    case 'a':
+                        this._a.push(td);
 
-			this.vars.a = a;
-			this.vars.b = b;
-			this.vars.check = check;
+                        break;
+                    case 'b':
+                        this._b.push(td);
 
-			return this;
-		},
-		check: function () {
-			var a = this.vars.a, b = this.vars.b, a_val = "", b_val = "",
-				i = 0, l = 0, check = this.vars.check;
+                        break;
+                    case 'check':
+                        this._check.push(td);
 
-			for (i = 0, l = a.length; i < l; i += 1) {
-				a_val = a[i].childNodes[0].nodeValue;
-				b_val = b[i].childNodes[1].nodeValue;
+                        break;
+                    default:
+                        break;
+                    }
+            });
+    }
 
-				if (a_val !== b_val) {
-					a[i].style.background = "red";
-					b[i].style.background = "red";
-					check[i].className = ["check", "error"].join(" ");
-				} else {
-					check[i].className = ["check", "success"].join(" ");
-				}
-			}
-		},
-		init: function () {
-			this.setup().check();
-		}
-	};
+    check() {
+        this._a
+            .forEach((_, i) => {
+                if (this._b[i].childNodes.length <= 1) {
+                    return;
+                }
 
-	window.onload = function () {
-		check.init();
-	};
-}(document, window));
+                const a_val = this._a[i].childNodes[0].nodeValue;
+                const b_val = this._b[i].childNodes[1].nodeValue;
+
+                if (a_val !== b_val) {
+                    this._a[i].style.background = 'red';
+                    this._b[i].style.background = 'red';
+                    this._check[i].className = ['check', 'error'].join(' ');
+                } else {
+                    this._check[i].className = ['check', 'success'].join(' ');
+                }
+            });
+    }
+}
+
+window.addEventListener('load', function () {
+    const _check = new DateJSCheck();
+});

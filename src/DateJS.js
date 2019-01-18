@@ -9,7 +9,7 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -19,324 +19,342 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*globals define, document, module, window*/
+class DateJS {
+    constructor() {
+        this._date = new Date();
+    }
 
-(function (document, window, undefined) {
-	"use strict";
+    static get str() {
+        return {
+            month: [
+                'January',
+                'February',
+                'March',
+                'April',
+                'May',
+                'June',
+                'July',
+                'August',
+                'September',
+                'October',
+                'November',
+                'December'
+            ],
+            week: [
+                'Sun',
+                'Mon',
+                'Tues',
+                'Wednes',
+                'Thurs',
+                'Fri',
+                'Satur'
+            ]
+        }
+    }
 
-	var DateJS = function () {
-		return true;
-	};
+    // day
+    d() {
+        /* Day of the month, 2 digits with leading zeros */
+        /* 01 to 31 */
+        const j = this.j();
 
-	DateJS.prototype = {
-/* -------------------------------- *\
-	$VARS
-\* -------------------------------- */
-		vars: {
-			date: new Date(),
-			str: {
-				month: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-				week: ["Sun", "Mon", "Tues", "Wednes", "Thurs", "Fri", "Satur"]
-			}
-		},
-		pad: function (str, len) {
-			str = "" + str;
-			while (str.length < len) {
-				str = "0" + str;
-			}
+        return j.toString().padStart(2, '0');
+    }
 
-			return str;
-		},
-/* -------------------------------- *\
-	$DAY
-\* -------------------------------- */
-		d: function () {
-			/* Day of the month, 2 digits with leading zeros */
-			/* 01 to 31 */
-			var j = this.j();
+    D() {
+        /* A textual representation of a day, three letters */
+        /* Mon through Sun */
+        return this.l().substring(0, 3);
+    }
 
-			return (j < 10) ? this.pad(j, 2) : j;
-		},
-		D: function () {
-			/* A textual representation of a day, three letters */
-			/* Mon through Sun */
-			return this.l().substr(0, 3);
-		},
-		j: function () {
-			/* Day of the month without leading zeros */
-			/* 1 to 31 */
-			return this.vars.date.getDate();
-		},
-		l: function () {
-			/* A full textual representation of the day of the week */
-			/* Sunday through Saturday */
-			return this.vars.str.week[this.w()] + "day";
-		},
-		N: function () {
-			/* ISO-8601 numeric representation of the day of the week (added in PHP 5.1.0) */
-			/* 1 (for Monday) through 7 (for Sunday) */
-			var w = this.w();
+    j() {
+        /* Day of the month without leading zeros */
+        /* 1 to 31 */
+        return this._date.getDate();
+    }
 
-			return (w === 0) ? 7 : w;
-		},
-		S: function () {
-			/* English ordinal suffix for the day of the month, 2 characters */
-			/* st, nd, rd or th. Works well with j */
-			var j = this.j(), S = 0;
+    l() {
+        /* A full textual representation of the day of the week */
+        /* Sunday through Saturday */
+        return DateJS.str.week[this.w()] + 'day';
+    }
 
-			if (j < 11 || j > 12) {
-				S = ((j % 10) > 3) ? 0 : (j % 10);
-			}
+    N() {
+        /* ISO-8601 numeric representation of the day of the week (added in PHP 5.1.0) */
+        /* 1 (for Monday) through 7 (for Sunday) */
+        const w = this.w();
 
-			return ["th", "st", "nd", "rd"][S];
-		},
-		w: function () {
-			/* Numeric representation of the day of the week */
-			/* 0 (for Sunday) through 6 (for Saturday) */
-			return this.vars.date.getDay();
-		},
-		z: function () {
-			/* The day of the year (starting from 0) */
-			/* 0 through 365 */
-			var start = new Date(this.Y(), 0, 1);
+        return (w === 0) ? 7 : w;
+    }
 
-			return Math.ceil(((this.vars.date - start) / 86400000) - 1);
-		},
-/* -------------------------------- *\
-	$WEEK
-\* -------------------------------- */
-		W: function () {
-			/* ISO-8601 week number of year, weeks starting on Monday (added in PHP 4.1.0) */
-			/* Example: 42 (the 42nd week in the year) */
-			return Math.ceil(this.z() / 7);
-		},
-/* -------------------------------- *\
-	$MONTH
-\* -------------------------------- */
-		F: function () {
-			/* A full textual representation of a month, such as January or March */
-			/* January through December */
-			return this.vars.str.month[this.n() - 1];
-		},
-		m: function () {
-			/* Numeric representation of a month, with leading zeros */
-			/* 01 through 12 */
-			var n = this.n();
+    S() {
+        /* English ordinal suffix for the day of the month, 2 characters */
+        /* st, nd, rd or th. Works well with j */
+        const j = this.j();
+        let S = 0;
 
-			return (n < 10) ? this.pad(n, 2) : n;
-		},
-		M: function () {
-			/* A short textual representation of a month, three letters */
-			/* Jan through Dec */
-			return this.F().substr(0, 3);
-		},
-		n: function () {
-			/* Numeric representation of a month, without leading zeros */
-			/* 1 through 12 */
-			return this.vars.date.getMonth() + 1;
-		},
-		t: function () {
-			/* Number of days in the given month */
-			/* 28 through 31 */
-			return new Date(this.Y(), this.n(), 0).getDate();
-		},
-/* -------------------------------- *\
-	$YEAR
-\* -------------------------------- */
-		L: function () {
-			/* Whether it's a leap year */
-			/* 1 if it is a leap year, 0 otherwise. */
-			return (new Date(this.Y(), 1, 29).getMonth() === 1) ? 1 : 0;
-		},
-		o: function () {
-			/* SO-8601 year number. This has the same value as Y, except that if the ISO week number (W) belongs to the previous or next year, that year is used instead. (added in PHP 5.1.0) */
-			/* Examples: 1999 or 2003 */
-			return this.Y();
-		},
-		Y: function () {
-			/* A full numeric representation of a year, 4 digits */
-			/* Examples: 1999 or 2003 */
-			return this.vars.date.getFullYear();
-		},
-		y: function () {
-			/* A two digit representation of a year */
-			/* Examples: 99 or 03 */
-			return this.Y().toString().substr(2, 2);
-		},
-/* -------------------------------- *\
-	$TIME
-\* -------------------------------- */
-		a: function () {
-			/* Lowercase Ante meridiem and Post meridiem */
-			/* am or pm */
-			return (this.G() > 12) ? "pm" : "am";
-		},
-		A: function () {
-			/* Uppercase Ante meridiem and Post meridiem */
-			/* AM or PM */
-			return this.a().toUpperCase();
-		},
-		B: function () {
-			/* Swatch Internet time */
-			/* 000 through 999 */
-			var date = this.vars.date, hrs = (date.getUTCHours() + 1) % 24,
-				min = date.getUTCMinutes() / 60,
-				sec = date.getUTCSeconds() / 3600;
+        if (j < 11 || j > 12) {
+            S = ((j % 10) > 3) ? 0 : (j % 10);
+        }
 
-			return this.pad(Math.floor((hrs + min + sec) * 1000 / 24), 3);
-		},
-		g: function () {
-			/* 12-hour format of an hour without leading zeros */
-			/* 1 through 12 */
-			var G = this.G();
+        return ['th', 'st', 'nd', 'rd'][S];
+    }
 
-			return (G > 12) ? G - 12 : G;
-		},
-		G: function () {
-			/* 24-hour format of an hour without leading zeros */
-			/* 0 through 23 */
-			return this.vars.date.getHours();
-		},
-		h: function () {
-			/* 12-hour format of an hour with leading zeros */
-			/* 01 through 12 */
-			var g = this.g();
+    w() {
+        /* Numeric representation of the day of the week */
+        /* 0 (for Sunday) through 6 (for Saturday) */
+        return this._date.getDay();
+    }
 
-			return (g < 10) ? this.pad(g, 2) : g;
-		},
-		H: function () {
-			/* 24-hour format of an hour with leading zeros */
-			/* 00 through 23 */
-			var G = this.G();
+    z() {
+        /* The day of the year (starting from 0) */
+        /* 0 through 365 */
+        const start = new Date(this.Y(), 0, 1);
 
-			return (G < 10) ? this.pad(G, 2) : G;
-		},
-		i: function () {
-			/* Minutes with leading zeros */
-			/* 00 to 59 */
-			var i = this.vars.date.getMinutes();
+        return Math.ceil(((this._date - start) / 86400000) - 1);
+    }
 
-			return (i < 10) ? this.pad(i, 2) : i;
-		},
-		s: function () {
-			/* Seconds, with leading zeros */
-			/* 00 through 59 */
-			var s = this.vars.date.getSeconds();
+    // week
+    W() {
+        /* ISO-8601 week number of year, weeks starting on Monday (added in PHP 4.1.0) */
+        /* Example: 42 (the 42nd week in the year) */
+        return Math.ceil(this.z() / 7);
+    }
 
-			return (s < 10) ? this.pad(s, 2) : s;
-		},
-		u: function () {
-			/* Microseconds (added in PHP 5.2.2). Note that date() will always generate 000000 since it takes an integer parameter, whereas DateTime::format() does support microseconds. */
-			/* Example: 654321 */
-			return this.pad(this.vars.date.getMilliseconds() * 1000, 6);
-		},
-/* -------------------------------- *\
-	$TIMEZONE
-\* -------------------------------- */
-		e: function () {
-/* !!! PARTIAL FUNCTIONALITY !!! */
-			/* Timezone identifier (added in PHP 5.1.0) */
-			/* Examples: UTC, GMT, Atlantic/Azores */
-			var O = parseInt(this.O(), 10) + (this.I() * 100);
+    // month
+    F() {
+        /* A full textual representation of a month, such as January or March */
+        /* January through December */
+        return DateJS.str.month[this.n() - 1];
+    }
 
-			return "UTC";
-		},
-		I: function () {
-			/* Whether or not the date is in daylight saving time */
-			/* 1 if Daylight Saving Time, 0 otherwise. */
-			var jan = new Date(this.Y(), 0, 1), jul = new Date(this.Y(), 6, 1),
-				I = Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+    m() {
+        /* Numeric representation of a month, with leading zeros */
+        /* 01 through 12 */
+        const n = this.n();
 
-			return ((this.Z() / 60) < I) ? 1 : 0;
-		},
-		O: function () {
-			/* Difference to Greenwich time (GMT) in hours */
-			/* Example: +0200 */
-			var offset = (this.vars.date.getTimezoneOffset() / 60) * 100,
-				pos = (offset > 0) ? "-" : "+";
+        return n.toString().padStart(2, '0');
+    }
 
-			return pos + this.pad(offset, 4);
-		},
-		P: function () {
-			/* Difference to Greenwich time (GMT) with colon between hours and minutes (added in PHP 5.1.3) */
-			/* Example: +02:00 */
-			var O = this.O();
+    M() {
+        /* A short textual representation of a month, three letters */
+        /* Jan through Dec */
+        return this.F().substring(0, 3);
+    }
 
-			return O.slice(0, 3) + ":" + O.slice(3);
-		},
-		T: function () {
-/* !!! PARTIAL FUNCTIONALITY !!! */
-			/* Timezone abbreviation */
-			/* Examples: EST, MDT ... */
-			return this.e();
-		},
-		Z: function () {
-			/* Timezone offset in seconds. The offset for timezones west of UTC is always negative, and for those east of UTC is always positive. */
-			/* -43200 through 50400 */
-			return this.vars.date.getTimezoneOffset() * -60;
-		},
-/* -------------------------------- *\
-	$FULL DATE/TIME
-\* -------------------------------- */
-		c: function () {
-			/* ISO 8601 date (added in PHP 5) */
-			/* 2004-02-12T15:19:21+00:00 */
-			return this.date("Y-m-d\\TH:i:sP");
-		},
-		r: function () {
-			/* » RFC 2822 formatted date */
-			/* Example: Thu, 21 Dec 2000 16:01:07 +0200 */
-			return this.date("D, d M Y H:i:s O");
-		},
-		U: function () {
-			/* Seconds since the Unix Epoch (January 1 1970 00:00:00 GMT) */
-			/* See also time() */
-			return Math.floor(this.vars.date.getTime() / 1000);
-		},
-/* -------------------------------- *\
-	$OUTPUT
-\* -------------------------------- */
-		date: function (format, timestamp) {
-			var output = "", $this = this, parts = [], raw = false,
-				i = 0, l = 0;
+    n() {
+        /* Numeric representation of a month, without leading zeros */
+        /* 1 through 12 */
+        return this._date.getMonth() + 1;
+    }
 
-			if (!format) {
-				return "";
-			}
+    t() {
+        /* Number of days in the given month */
+        /* 28 through 31 */
+        return new Date(this.Y(), this.n(), 0).getDate();
+    }
 
-			if (timestamp) {
-				this.vars.date = new Date(timestamp * 1000);
-			}
+    // year
+    L() {
+        /* Whether it's a leap year */
+        /* 1 if it is a leap year, 0 otherwise. */
+        return (new Date(this.Y(), 1, 29).getMonth() === 1) ? 1 : 0;
+    }
 
-			parts = format.split("");
+    o() {
+        /* SO-8601 year number. This has the same value as Y, except that if the ISO week number (W) belongs to the previous or next year, that year is used instead. (added in PHP 5.1.0) */
+        /* Examples: 1999 or 2003 */
+        return this.Y();
+    }
 
-			for (i = 0, l = parts.length; i < l; i += 1) {
-				raw = (parts[i] === "\\") ? true : false;
+    Y() {
+        /* A full numeric representation of a year, 4 digits */
+        /* Examples: 1999 or 2003 */
+        return this._date.getFullYear();
+    }
 
-				if (raw) {
-					i += 1;
-				}
+    y() {
+        /* A two digit representation of a year */
+        /* Examples: 99 or 03 */
+        return this.Y().toString().substring(2, 2);
+    }
 
-				if (!raw && parts[i].match(/[A-Za-z]/)) {
-					parts[i] = ($this[parts[i]] !== undefined) ? $this[parts[i]]() : parts[i];
-				}
+    // time
+    a() {
+        /* Lowercase Ante meridiem and Post meridiem */
+        /* am or pm */
+        return (this.G() > 12) ? 'pm' : 'am';
+    }
 
-				output += parts[i];
-			}
+    A() {
+        /* Uppercase Ante meridiem and Post meridiem */
+        /* AM or PM */
+        return this.a().toUpperCase();
+    }
 
-			return output;
-		}
-	};
+    B() {
+        /* Swatch Internet time */
+        /* 000 through 999 */
+        const hrs = (this._date.getUTCHours() + 1) % 24;
+        const min = this._date.getUTCMinutes() / 60;
+        const sec = this._date.getUTCSeconds() / 3600;
 
-	if (typeof module === "object" && module && typeof module.exports === "object") {
-		module.exports = DateJS;
-	} else {
-		window.DateJS = DateJS;
+        return Math.floor((hrs + min + sec) * 1000 / 24).toString().padStart(3, '0');
+    }
 
-		if (typeof define === "function" && define.amd) {
-			define("datejs", [], function () {
-				return DateJS;
-			});
-		}
-	}
-}(document, window));
+    g() {
+        /* 12-hour format of an hour without leading zeros */
+        /* 1 through 12 */
+        const G = this.G();
+
+        return G % 12;
+    }
+
+    G() {
+        /* 24-hour format of an hour without leading zeros */
+        /* 0 through 23 */
+        return this._date.getHours();
+    }
+
+    h() {
+        /* 12-hour format of an hour with leading zeros */
+        /* 01 through 12 */
+        const g = this.g();
+
+        return g.toString().padStart(2, '0');
+    }
+
+    H() {
+        /* 24-hour format of an hour with leading zeros */
+        /* 00 through 23 */
+        const G = this.G();
+
+        return G.toString().padStart(2, '0');
+    }
+
+    i() {
+        /* Minutes with leading zeros */
+        /* 00 to 59 */
+        const i = this._date.getMinutes();
+
+        return i.toString().padStart(2, '0');
+    }
+
+    s() {
+        /* Seconds, with leading zeros */
+        /* 00 through 59 */
+        const s = this._date.getSeconds();
+
+        return s.toString().padStart(2, '0');
+    }
+
+    u() {
+        /* Microseconds (added in PHP 5.2.2). Note that date() will always generate 000000 since it takes an integer parameter, whereas DateTime::format() does support microseconds. */
+        /* Example: 654321 */
+        return (this._date.getMilliseconds() * 1000).toString().padStart(6, '0');
+    }
+
+    // timezone
+    e() {
+    /* !!! PARTIAL FUNCTIONALITY !!! */
+        /* Timezone identifier (added in PHP 5.1.0) */
+        /* Examples: UTC, GMT, Atlantic/Azores */
+        const O = parseInt(this.O(), 10) + (this.I() * 100);
+
+        return 'UTC';
+    }
+
+    I() {
+        /* Whether or not the date is in daylight saving time */
+        /* 1 if Daylight Saving Time, 0 otherwise. */
+        const jan = new Date(this.Y(), 0, 1);
+        const jul = new Date(this.Y(), 6, 1);
+        const I = Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+
+        return ((this.Z() / 60) < I) ? 1 : 0;
+    }
+
+    O() {
+        /* Difference to Greenwich time (GMT) in hours */
+        /* Example: +0200 */
+        const offset = (this._date.getTimezoneOffset() / 60) * 100;
+        const pos = (offset > 0) ? '-' : '+';
+
+        return pos + offset.toString().padStart(4, '0');
+    }
+
+    P() {
+        /* Difference to Greenwich time (GMT) with colon between hours and minutes (added in PHP 5.1.3) */
+        /* Example: +02:00 */
+        const O = this.O();
+
+        return O.slice(0, 3) + ':' + O.slice(3);
+    }
+
+    T() {
+    /* !!! PARTIAL FUNCTIONALITY !!! */
+        /* Timezone abbreviation */
+        /* Examples: EST, MDT ... */
+        return this.e();
+    }
+
+    Z() {
+        /* Timezone offset in seconds. The offset for timezones west of UTC is always negative, and for those east of UTC is always positive. */
+        /* -43200 through 50400 */
+        return this._date.getTimezoneOffset() * -60;
+    }
+
+    // full date/time
+    c() {
+        /* ISO 8601 date (added in PHP 5) */
+        /* 2004-02-12T15:19:21+00:00 */
+        return this.date('Y-m-d\\TH:i:sP');
+    }
+
+    r() {
+        /* » RFC 2822 formatted date */
+        /* Example: Thu, 21 Dec 2000 16:01:07 +0200 */
+        return this.date('D, d M Y H:i:s O');
+    }
+
+    U() {
+        /* Seconds since the Unix Epoch (January 1 1970 00:00:00 GMT) */
+        /* See also time() */
+        return Math.floor(this._date.getTime() / 1000);
+    }
+
+    // output
+    date(format, timestamp) {
+        const output = [];
+        let i = 0;
+        let l = 0;
+
+        if (!format) {
+            return '';
+        }
+
+        if (timestamp) {
+            this._date = new Date(timestamp * 1000);
+        }
+
+        const parts = format.split('');
+
+        for (i = 0, l = parts.length; i < l; i += 1) {
+            const raw = (parts[i] === '\\') ? true : false;
+
+            if (raw) {
+                i += 1;
+            }
+
+            if (!raw && parts[i].match(/[A-Za-z]/)) {
+                parts[i] = (this[parts[i]] !== undefined) ? this[parts[i]]() : parts[i];
+            }
+
+            output.push(parts[i]);
+        }
+
+        return output.join('');
+    }
+}
+
+module.exports = DateJS;

@@ -1,34 +1,21 @@
-/*globals document, require, requirejs, window*/
+const format = document.querySelector('#format input');
+const output = document.querySelector('#output p');
+const d = new DateJS();
+const update = () => {
+    output.innerHTML = d.date(format.value);
+};
+let vars = {};
 
-(function (document, window, undefined) {
-	"use strict";
+window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, (_, key, value) => {
+    vars[key] = decodeURIComponent(value).replace(/\+/g, ' ');
+});
 
-	requirejs.config({
-		baseUrl: ".",
-		paths: {
-			"datejs": "../dist/DateJS.min"
-		}
-	});
+if (vars.f) {
+    format.value = vars.f;
+}
 
-	require(["datejs"], function (DateJS) {
-		var format = document.getElementById("format").getElementsByTagName("input")[0],
-			output = document.getElementById("output").getElementsByTagName("p")[0],
-			d = new DateJS(), update = function () {
-				output.innerHTML = d.date(format.value);
-			}, vars = {};
+update();
 
-		window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function (m, key, value) {
-			vars[key] = decodeURIComponent(value).replace(/\+/g, " ");
-		});
-
-		if (vars.f) {
-			format.value = vars.f;
-		}
-
-		update();
-
-		format.onkeyup = function () {
-			update();
-		};
-	});
-}(document, window));
+format.addEventListener('keyup', () => {
+    update();
+});
